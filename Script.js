@@ -164,8 +164,7 @@ function initTypewriter() {
 function initNavigation() {
   const header = document.querySelector('.navbar-header');
   const mobileToggle = document.getElementById('mobile-menu-btn');
-  const mobileDrawer = document.getElementById('mobile-drawer');
-  const mobileClose = document.getElementById('mobile-close-btn');
+  const mobileDropdown = document.getElementById('mobile-dropdown');
   const navLinks = document.querySelectorAll('.nav-link, .mobile-nav-link');
   const sections = document.querySelectorAll('section[id]');
 
@@ -198,22 +197,36 @@ function initNavigation() {
   }, { passive: true });
 
   // Mobile menu open / close
-  function openMobile() {
-    if (mobileDrawer) {
-      mobileDrawer.classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
-  }
-
   function closeMobile() {
-    if (mobileDrawer) {
-      mobileDrawer.classList.remove('open');
-      document.body.style.overflow = '';
+    if (mobileDropdown) mobileDropdown.classList.remove('open');
+    if (mobileToggle) {
+      mobileToggle.classList.remove('active');
+      mobileToggle.setAttribute('aria-expanded', 'false');
     }
   }
 
-  if (mobileToggle) mobileToggle.addEventListener('click', openMobile);
-  if (mobileClose) mobileClose.addEventListener('click', closeMobile);
+  if (mobileToggle && mobileDropdown) {
+    mobileToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = mobileDropdown.classList.toggle('open');
+      mobileToggle.classList.toggle('active', isOpen);
+      mobileToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    // Click outside to close
+    document.addEventListener('click', (e) => {
+      if (!mobileDropdown.contains(e.target) && !mobileToggle.contains(e.target)) {
+        closeMobile();
+      }
+    });
+
+    // Escape key to close
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeMobile();
+      }
+    });
+  }
 
   navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
